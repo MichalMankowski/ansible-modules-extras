@@ -101,7 +101,7 @@ def main():
     state = module.params['state']
     server_url = module.params['server_url']
 
-    # login to zabbix
+    # login to zabbix api
     try:
         zapi = ZabbixAPI(server_url)
         zapi.login(login_user, login_password)
