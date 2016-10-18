@@ -61,12 +61,12 @@ EXAMPLES = '''
 '''
 
 
-def link_templates(template_ids, host_ids, state, zapi, module):
+def link_templates(template_ids, host_ids, state, zapi, check_mode):
     for host in host_ids:
         for template in template_ids:
-            if state == "present" and not module.check_mode:
+            if state == "present" and not check_mode:
                 zapi.host.massadd(hosts=host, templates=template)
-            elif state == "absent" and not module.check_mode:
+            elif state == "absent" and not check_mode:
                 zapi.host.update(hostid=host, templates_clear=template)
 
 
@@ -105,10 +105,11 @@ def main():
     try:
         zapi = ZabbixAPI(server_url)
         zapi.login(login_user, login_password)
+        check_mode = module.check_mode
         # get host id and template , then link them to each other
         host_ids = get_resource_ids(zapi.host.get(), module.params['host'], 'name', 'hostid')
         template_ids = get_resource_ids(zapi.template.get(), module.params['template'], 'host', 'templateid')
-        link_templates(template_ids, host_ids, state, zapi, module)
+        link_templates(template_ids, host_ids, state, zapi, check_mode)
         module.exit_json(changed=True)
     except Exception as e:
         module.fail_json(msg=str(e))
