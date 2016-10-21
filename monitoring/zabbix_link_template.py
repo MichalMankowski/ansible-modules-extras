@@ -41,11 +41,11 @@ options:
      description:
          - Address of zabbix server
      required: True
-  username:
+  login_user:
      description:
          - name of user to login to zabbix
      required: True
-  password:
+  login_password:
      description:
          - password for user to login to zabbix
      reuqierd: True
@@ -53,13 +53,18 @@ options:
      description:
          - list of hosts to update
      required: True
+     aliases: ['hosts']
   template:
      description:
          - list of templates to link/unlink
+     required: True
+     aliases: ['templates']
   state:
      description:
-         - state present link templates, absent unlink templates
+         - state present link list of templates, absent unlink list of templates
      required: False
+     choices: [ present, absent]
+     default: "present"
 '''
 
 EXAMPLES = '''
@@ -72,10 +77,13 @@ EXAMPLES = '''
     password: "test"
     template:
     - "Template App HTTP Service"
+    - "Template App LDAP Service"
     host:
     - "Zabbix server"
+    - "Linux server"
     state: present
 '''
+
 RETURN = '''
 #defaults
 '''
@@ -101,10 +109,10 @@ def get_resource_ids(zabbix_resources, filter_list, filter_field, result_field):
 def main():
     fields = {
         "server_url": {"required": True, "type": "str"},
-        "user": {"required": True, "type": "str"},
-        "password": {"required": True, "type": "str"},
-        "template": {"required": True, "type": "list"},
-        "host": {"required": True, "type": "list"},
+        "login_user": {"required": True, "type": "str"},
+        "login_password": {"required": True, "type": "str", "no_log": True},
+        "template": {"required": True, "type": "list", "aliases": ['templates']},
+        "host": {"required": True, "type": "list", "aliases": ['hosts']},
         "state": {
             "default": "present",
             "choices": ['present', 'absent'],
@@ -116,8 +124,8 @@ def main():
     if not HAS_ZABBIX:
         module.fail_json(msg="Missing required lib pyzabbix")
 
-    login_user = module.params['user']
-    login_password = module.params['password']
+    login_user = module.params['login_user']
+    login_password = module.params['login_password']
     state = module.params['state']
     server_url = module.params['server_url']
 
