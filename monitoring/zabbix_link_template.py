@@ -26,7 +26,7 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: zabbix_update
+module: zabbix_link_update
 short_description: Link/unlink given hosts list with given templates list
 description:
   - Link/unlink given hosts list with given templates list
